@@ -1,100 +1,155 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   1780.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: byan <byan@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/31 13:07:55 by byan              #+#    #+#             */
+/*   Updated: 2021/10/31 13:07:55 by byan             ###   ########seoul.kr  */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 
-int n;
-int num_m1 = 0, num_0 = 0, num_1 = 0;
-int cnt_m1 = 0, cnt_0 = 0, cnt_1 = 0;
-int dv(int arr[][n], int n, int x, int y);
+void check_box(int size, int **paper);
+void cut_box(int size, int **paper);
 
-int main() {
-    scanf("%d", &n);
-    int paper[n][n];
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            scanf("%d",&paper[i][j]);
-            switch(paper[i][j])
-            {
-                case(-1):
-                    cnt_m1++;
-                    break;
-                case(0):
-                    cnt_0++;
-                    break;
-                case(1):
-                    cnt_1++;
-                    break;
-            }
-        }
-    }
-    // 하나일때 체크
-    if (cnt_m1 == n * n)
-    {
-        num_m1++;
-    }
-    else if(cnt_0 == n * n)
-    {
-        num_0++;
-    }
-    else if(cnt_1 == n * n)
-    {
-        num_1++;
-    }
-    else
-    {
-        dv(paper, n, 0, 0);
-    }
-    printf("%d\n", cnt_m1);
-    printf("%d\n", cnt_0);
-    printf("%d", cnt_1);
-    return 0;
+int **box;
+int num_minus = 0, num_zero = 0, num_plus = 0;
+
+void cut_box(int size, int **paper)
+{
+	int i = 0, j = 0, num = 0;
+	int cut_size = size / 3;
+	int **arr[9];
+	while (num < 9)
+	{
+		arr[num] = (int **)calloc(cut_size, sizeof(int *));
+		i = 0;
+		while (i < cut_size)
+		{
+			arr[num][i] = (int *)calloc(cut_size, sizeof(int));
+			i++;
+		}
+		num++;
+	}
+	i = 0; // for real size
+	j = 0; 
+	num = 0;
+	int k = 0, l = 0; // for small size
+	while (num < 9)
+	{
+		k = 0;
+		while (k < cut_size)
+		{
+			l = 0;
+			while (l < cut_size)
+			{
+				arr[num][k][l] = paper[i][j];
+				l++;
+				j++;
+				if(j % cut_size == 0)
+					j = j - cut_size;
+			}
+			k++;
+			i++;
+			if (i % cut_size == 0)
+			{
+				i = i - cut_size;
+				j = j + cut_size;
+			}
+		}
+		num++;
+		if (num % 3 == 0)
+		{
+			i = i + cut_size;
+			j = 0;
+		}
+			
+	}
+	num = -1;
+	while (++num < 9)
+	{
+		check_box(cut_size, arr[num]);
+		i = 0;
+		while (i < cut_size)
+		{
+			free(arr[num][i]);
+			i++;
+		}
+		free(arr[num]);
+	}
 }
 
-int dv(int arr[][n], int n, int x, int y)
-{   
-    cnt_m1 = 0;
-    cnt_0 = 0;
-    cnt_1 = 0;
-    int t_size = n / 3;
-    int t2_size = t_size * t_size;
-    for (int i = x*3; i < t_size+x*3; i++)
-    {
-        for (int j = y*3; j < t_size+y*3; j++)
-        {
-            switch(arr[i][j])
-            {
-                case(-1):
-                    cnt_m1++;
-                    break;
-                case(0):
-                    cnt_0++;
-                    break;
-                case(1):
-                    cnt_1++;
-                    break;
-            }
-            if (cnt_m1 == t2_size)
-            {
-                num_m1++;
-                return 0;
-            }
-            else if(cnt_0 == t2_size)
-            {
-                num_0++;
-                return 0;
-            }
-            else if(cnt_1 == t2_size)
-            {
-                num_1++;
-                return 0;
-            }
-        }
-    }
-    dv(arr, t_size, x+1, y);
-    dv(arr, t_size, x+2, y);
-    dv(arr, t_size, x+1, y+1);
-    dv(arr, t_size, x+2, y+1);
-    dv(arr, t_size, x+1, y+2);
-    dv(arr, t_size, x+2, y+2);
+void check_box(int size, int **paper)
+{
+	int i = 0;
+	int j = 0;
+	int x = 0;
+	int out = 0;
+
+	x = paper[0][0];
+
+	while (i < size)
+	{
+		j = 0;
+		while (j < size)
+		{
+			if (paper[i][j] != x)
+			{
+				out = 1;
+				break ;
+			}
+			j++;
+		}
+		if (out == 1)
+			break;
+		i++;
+	}
+	if (i == size && j == size)
+	{
+		if (x == 0)
+			num_zero++;
+		else if (x == 1)
+			num_plus++;
+		else if (x == -1)
+			num_minus++;
+	}
+	else
+		cut_box(size, paper);
+}
+
+
+int main()
+{
+	int size;
+	
+	int i = -1;
+	int j = 0;
+	scanf("%d", &size);
+	box = (int **)calloc(size, sizeof(int*));
+	while (++i < size)
+		box[i] = (int *)calloc(size, sizeof(int));
+	i = 0;
+	while(i < size)
+	{
+		j = 0;
+		while(j < size)
+		{
+			scanf("%d", &box[i][j]);
+			j++;
+		}
+		i++;
+	}
+	check_box(size, box);
+	i = -1;
+	while (++i < size)
+		free(box[i]);
+	free(box);
+	printf("%d\n", num_minus);
+	printf("%d\n", num_zero);
+	printf("%d", num_plus);
+	return 0;
 }
