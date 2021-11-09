@@ -1,128 +1,152 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   2630.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: byan <byan@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/02 20:38:11 by byan              #+#    #+#             */
+/*   Updated: 2021/11/02 20:38:11 by byan             ###   ########seoul.kr  */
+/*                                                                            */
+/* ************************************************************************** */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
-int blue = 0;
-int white = 0;
+void check_box(int size, int **paper);
+void cut_box(int size, int **paper);
 
-// temp box
-int temp_box[64][64];
+int **box;
+int num_minus = 0, num_zero = 0, num_plus = 0;
 
-int check(int n);
-void put(int n, int box[n][n], int num);
-void divide(int n, int box[n][n]);
-
-int main() {
-    int n;
-    scanf("%d", &n);
-    int box[n][n];
-    int sum = 0;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            scanf("%d", &box[i][j]);
-            sum += box[i][j];
-        }
-    }
-
-    if(sum == n*n)
-    {
-        blue++;
-    }
-    else if(sum == 0)
-    {
-        white++;
-    }
-    if(sum == n*n || sum == 0)
-    {
-        printf("%d\n", white);
-        printf("%d", blue);
-        return 0;
-    }
-
-    divide(n, box);
-
-    printf("%d\n", white);
-    printf("%d", blue);
-    return 0;
+void cut_box(int size, int **paper)
+{
+	int i = 0, j = 0, num = 0;
+	int cut_size = size / 2;
+	int **arr[4];
+	while (num < 4)
+	{
+		arr[num] = (int **)calloc(cut_size, sizeof(int *));
+		i = 0;
+		while (i < cut_size)
+		{
+			arr[num][i] = (int *)calloc(cut_size, sizeof(int));
+			i++;
+		}
+		num++;
+	}
+	i = 0; // for real size
+	j = 0; 
+	num = 0;
+	int k = 0, l = 0; // for small size
+	while (num < 4)
+	{
+		k = 0;
+		while (k < cut_size)
+		{
+			l = 0;
+			while (l < cut_size)
+			{
+				arr[num][k][l] = paper[i][j];
+				l++;
+				j++;
+				if(j % cut_size == 0)
+					j = j - cut_size;
+			}
+			k++;
+			i++;
+			if (i % cut_size == 0)
+			{
+				i = i - cut_size;
+				j = j + cut_size;
+			}
+		}
+		num++;
+		if (num % 2 == 0)
+		{
+			i = i + cut_size;
+			j = 0;
+		}
+			
+	}
+	num = -1;
+	while (++num < 4)
+	{
+		check_box(cut_size, arr[num]);
+		i = 0;
+		while (i < cut_size)
+		{
+			free(arr[num][i]);
+			i++;
+		}
+		free(arr[num]);
+	}
 }
 
-void put(int n, int box[n][n], int num)
+void check_box(int size, int **paper)
 {
-    int real = n / 2;
-    int x = 0;
-    int y = 0;
-    switch(num)
-    {
-        case 1:
-            x = 0;
-            y = 0;
-            break;
-        case 2:
-            x = real;
-            y = 0;
-            break;
-        case 3:
-            x = 0;
-            y = real;
-            break;
-        case 4:
-            x = real;
-            y = real;
-            break;
-    }
-    for (int i = x; i < x+real; i++)
-    {
-        for (int j = y; j < y+real; j++)
-        {
-            temp_box[i][j] = box[i][j]; 
-        }
-    }
-    if(real==1)
-    {
-        check(1);
-        return;
-    }
-    if(check(real)==0)
-    {
-        divide(real, temp_box);
-    }
+	int i = 0;
+	int j = 0;
+	int x = 0;
+	int out = 0;
+
+	x = paper[0][0];
+
+	while (i < size)
+	{
+		j = 0;
+		while (j < size)
+		{
+			if (paper[i][j] != x)
+			{
+				out = 1;
+				break ;
+			}
+			j++;
+		}
+		if (out == 1)
+			break;
+		i++;
+	}
+	if (i == size && j == size)
+	{
+		if (x == 0)
+			num_zero++;
+		else if (x == 1)
+			num_plus++;
+	}
+	else
+		cut_box(size, paper);
 }
 
-void divide(int n, int box[n][n])
-{
-    put(n, box, 1);
-    put(n, box, 2);
-    put(n, box, 3);
-    put(n, box, 4);
-    return;
-}
 
-int check(int n)
+int main()
 {
-    int cnt = 0;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if(temp_box[i][j]==1)
-            {
-                cnt++;
-            }
-        }
-    }
-    if (cnt == n*n)
-    {
-        blue++;
-        return 1;
-    }
-    else if (cnt == 0)
-    {
-        white++;
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+	int size;
+	int i = -1;
+	int j = 0;
+	scanf("%d", &size);
+	box = (int **)calloc(size, sizeof(int*));
+	while (++i < size)
+		box[i] = (int *)calloc(size, sizeof(int));
+	i = 0;
+	while(i < size)
+	{
+		j = 0;
+		while(j < size)
+		{
+			scanf("%d", &box[i][j]);
+			j++;
+		}
+		i++;
+	}
+	check_box(size, box);
+	i = -1;
+	while (++i < size)
+		free(box[i]);
+	free(box);
+	printf("%d\n", num_zero);
+	printf("%d\n", num_plus);
+	return 0;
 }

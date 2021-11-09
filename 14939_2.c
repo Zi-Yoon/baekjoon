@@ -1,159 +1,132 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   14939_2.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: byan <byan@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/10 00:07:54 by byan              #+#    #+#             */
+/*   Updated: 2021/11/10 00:07:54 by byan             ###   ########seoul.kr  */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-int Bulb[12][12]; // 원본
-int temp[12][12]; // test case
-char real[10]; // 2진수 표현용
-long binary= 0;
-char temp_c[1];
-int min = 1000, ans = 0, cnt = 0;
+int bulb[12][12]; // 원본
+char temp_c;
+int ans = 0;
+int min = 1000, sum = 0;
 
-void reset();
-int mk_bin(int a);
-void First();
-void start_first(int x);
-void start_second(int x, int y);
-void Push(int x, int y);
-void check();
+void push_wise(int bulb[][12])
+{
+	int i = 1;
+	int j = 1;
+	while (i <= 9)
+	{
+		j = 1;
+		while (j <= 10)
+		{
+			if (bulb[i][j] == 1)
+			{
+				bulb[i][j] *= -1; // 위
+				bulb[i + 2][j] *= -1; // 아래
+				bulb[i + 1][j - 1] *= -1; // 왼
+				bulb[i + 1][j + 1] *= -1; // 오
+				bulb[i + 1][j] *= -1; // 중간
+				ans++;
+			}
+			j++;
+		}
+		i++;
+	}
+	i = 0;
+	while (++i <= 10)
+	{
+		j = 0;
+		while (++j <= 10)
+			sum += bulb[i][j];
+	}
+	
+}
+
+void push(int bulb[][12])
+{
+	int temp[12][12];
+	ans = 0;
+
+	memcpy(temp, bulb, 12 * 12 * sizeof(int));
+	int i = 0;
+	int j = 1;
+	while (i <= 9)
+	{
+		j = 1;
+		while (j <= 10)
+		{
+			ans++;
+			temp[i][j] *= -1;		  // 위
+			temp[i + 1][j - 1] *= -1; // 왼
+			temp[i + 1][j + 1] *= -1; // 오
+			temp[i + 1][j] *= -1;	  // 중간
+			if (i != 10)
+				temp[i + 2][j] *= -1;	  // 아래
+			j++;
+		}
+		i++;
+	}
+	i = 0;
+	while (++i <= 10)
+	{
+		j = 0;
+		while (++j <= 10)
+			sum += temp[i][j];
+	}
+	
+}
 
 int main() 
 {
-    memset(Bulb, 0, sizeof(Bulb));
-    memset(temp, 0, sizeof(temp));
-    memset(real, 0, sizeof(real));
-    for (int i = 1; i <= 10; i++)
-    {
-        for (int j = 1; j <= 10; j++)
-        {
-            scanf("%c", temp_c);
-            if(temp_c[0] == '\n')
-            {
-                j--;
-                continue;
-            }
-            if(temp_c[0] == '#')
-            {
-                Bulb[i][j] = -1;
-            }
-            if(temp_c[0] == 'O')
-            {
-                Bulb[i][j] = 1;
-            }
-        }
-    }
-    First();
-    if(min == 1000)
-    {
+	int	i = 1;
+	int	j = 1;
+	int a = 0;
+	int bulb[12][12];
+	int temp[12][12];
+
+	memset(bulb, 0, 12 * 12 * sizeof(int));
+	while (i <= 10)
+	{
+		j = 1;
+		while (j <= 10)
+		{
+			scanf("%c", &temp_c);
+			if (temp_c == '\n')
+				j--;
+			else if (temp_c == '#')
+				bulb[i][j] = -1;
+			else if (temp_c == 'O')
+				bulb[i][j] = 1;
+			j++;
+		}
+		i++;
+	}
+	memcpy(temp, bulb, 12 * 12 * sizeof(int));
+	push_wise(temp);
+	if (sum == -100)
+	{
+		a++;
+		min = ans;
+	}
+	memcpy(temp, bulb, 12 * 12 * sizeof(int));
+	sum = 0;
+	push(temp);
+	if (min < ans)
+		ans = min;
+	if(sum != -100 && a == 0)
         printf("%d", -1);
-    }
     else
-    {
-        printf("%d", min);
-    }
+        printf("%d", ans);
     return 0;
 }
 
-// 리셋
-void reset()
-{
-    memmove(temp, Bulb, sizeof(Bulb));
-    memset(real, 0, sizeof(real));
-    cnt = 0;
-    ans = 0;
-    binary = 0;
-}
-
-// 2진수 만들기
-int mk_bin(int a)
-{
-    for (int i = 0; i < 10; i++)
-    {
-        int tmi = a % 2;
-        if (tmi == 1)
-        {
-            binary += pow(10, i);
-        }
-        a = a / 2;
-    }
-    return binary;
-}
-
-// 시작
-void First()
-{
-    for (int j = 0; j < 1024; j++)
-    {
-        reset();
-        binary = mk_bin(j);
-        sprintf(real, "%d", binary);
-        for (int i = 1; i <= 10; i++)
-        {
-            if (real[10-i] == '1')
-            {
-                start_first(i);
-            }
-        }
-        start_second(1, 2);
-        check();
-    }
-}
-
-// 첫줄만 세팅해주는 함수
-void start_first(int x)
-{
-    int y = 1;
-    temp[x][y] = Bulb[x][y] * -1;
-    temp[x+1][y] = Bulb[x+1][y] * -1;
-    temp[x][y+1] = Bulb[x][y+1] * -1;
-    temp[x-1][y] = Bulb[x-1][y] * -1;
-}
-
-// 둘째줄부터 마지막줄까지 처리
-void start_second(int x, int y)
-{
-    if(temp[x][y-1] == 1)
-    {
-        Push(x, y);
-        ans++;
-    }
-    if(x < 10)
-    {
-        start_second(x + 1, y);
-    }
-    else if (x == 10 && y != 10)
-    {
-        start_second(1, y + 1);
-    }
-    return;
-}
-
-
-// + 모양으로 전원 on-off
-void Push(int x, int y)
-{
-    temp[x][y] *= -1;
-    temp[x+1][y] *= -1;
-    temp[x][y+1] *= -1;
-    temp[x-1][y] *= -1;
-    temp[x][y-1] *= -1;
-}
-
-void check()
-{
-    for (int i = 1; i <= 10; i++)
-    {
-        for (int j = 1; j <= 10; j++)
-        {
-            cnt += temp[i][j];
-        }
-    }
-    if(cnt == -100)
-    {
-        if(ans < min)
-        {
-            min = ans;
-        }
-    }
-}
