@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int n;
 int arr[100][100];
@@ -10,13 +11,14 @@ int visit[100];
 void dfs(int a)
 {
     visit[a]++;
+	if (visit[a] == 2)
+		return ;
     for (int i = 0; i < n; i++)
     {
-        if(arr[a][i]==1 && visit[i]!=1)
-        {
+        if (arr[a][i] == 1 && visit[i] < 2)
             dfs(i);
-        }
-    }
+	}
+	return ;
 }
 
 int main() 
@@ -25,39 +27,29 @@ int main()
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
-        {
             scanf("%d", &arr[i][j]);
-        }
     }
-    for (int i = 0; i < n; i++)
-    {
-        visit[i]=0;
-    }
-
+    memset(visit, 0, 100 * sizeof(int));
     for (int i = 0; i < n; i++)
     {
         dfs(i);
         for (int j = 0; j < n; j++)
-        {
-            if(i==j && visit[j] !=2)
-            {
-                ans[i][j] = 0;
-                visit[j] = 0;
-                continue;
-            }
             ans[i][j] = visit[j];
-            visit[j] = 0;
-        }
-    }
+		memset(visit, 0, 100 * sizeof(int));
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		if (ans[i][i] == 1)
+			ans[i][i] = 0;
+	}
 
     for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)
 		{
 			if (ans[i][j] == 2)
-			{
-                ans[i][j]--;
-            }
+                ans[i][j] = 1;
 			printf("%d ", ans[i][j]);
 		}
         printf("\n");

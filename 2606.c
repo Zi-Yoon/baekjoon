@@ -1,55 +1,49 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+int n, m;
+int arr[101][101];
+int visit[101];
+int cnt = -1;
+
+// 깊이 우선 탐색 * Depth First Search
+void dfs(int a)
+{
+	visit[a]++;
+	if (visit[a] > 1)
+		return;
+	for (int i = 0; i < n; i++)
+	{
+		if (arr[a][i] == 1 && visit[i] < 2)
+			dfs(i);
+	}
+	return;
+}
 
 int main() {
-    int n, m;
+	int a, b;
     scanf("%d", &n); // 100 이하
     scanf("%d", &m); 
-    int temp[n+1][n+1];
-    int pc[m][2];
-    for (int i = 0; i < m; i++)
+	memset(arr, 0, 101 * 101 * sizeof(int));
+	for (int i = 0; i < m; i++)
     {
-        scanf("%d %d", &pc[i][0], &pc[i][1]);
-    }
-
-    // reset
-    for (int i = 0; i <= n; i++)
-    {
-        for (int j = 0; j <= n; j++)
-        {
-            temp[i][j] = 0;
-        }
-    }
-
-    for (int i = 0; i < m; i++)
-    {
-        if(pc[i][0] < pc[i][1])
-        {
-            temp[pc[i][0]][pc[i][1]] = 1;
-        }
-        else
-        {
-            temp[pc[i][1]][pc[i][0]] = 1;
-        }
-    }
-    int cnt = 0;
-    for (int i = 2; i <= n; i++)
-    {
-        if(temp[1][i]==1)
-        {
-            cnt++;
-            for (int j = i+1; j <= n;j++)
-            {
-                if (temp[i][j] == 1)
-                {
-                    if(temp[1][j] !=1)
-                    {
-                        cnt++;
-                    }
-                }
-            }
-        }
-    }
+        scanf("%d %d", &a, &b);
+		a--;
+		b--;
+		arr[a][b] = 1;
+		arr[b][a] = 1;
+	}
+	arr[0][0] = 1;
+	memset(visit, 0, 101 * sizeof(int));
+	dfs(0);
+	int i = 0;
+	while (i < n)
+	{
+		if(visit[i] > 0)
+			cnt++;
+		i++;
+	}
     printf("%d", cnt);
     return 0;
 }
