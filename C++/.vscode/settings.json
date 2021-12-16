@@ -4,6 +4,11 @@
 		"ostream": "cpp",
 		"iostream": "cpp",
 		"algorithm": "cpp",
-		"vector": "cpp"
+		"vector": "cpp",
+		"ratio": "cpp",
+		"queue": "cpp",
+		"functional": "cpp",
+		"set": "cpp",
+		"bitset": "cpp"
 	}
 }
