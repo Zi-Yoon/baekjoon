@@ -1,121 +1,61 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_ten_queens_puzzle.c                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: byan <byan@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/19 17:16:33 by byan              #+#    #+#             */
+/*   Updated: 2021/10/23 18:43:18 by byan             ###   ########seoul.kr  */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
 
-int n, ans = 0, cnt = 0, Y = 0;
-int tem_cnt = 0;
-int chess[15][15];
-int temp_temp[15][15];
-int sum = 0;
+int g_board[15];
+int g_count = 0;
 
-// queen을 체스판에 놓는 함수
-void put(int x, int y)
+int ft_abs(int a)
 {
-    cnt++;
-    int a = abs(x - y);
-    int b = x + y;
-    // 수직 수평 제거
-    for (int i = 0; i < n; i++)
-    {
-        temp_temp[i][y] = 1;
-    }
-    for (int i = 0; i < n; i++)
-    {
-        temp_temp[x][i] = 1;
-    }
-    // 대각선 제거
-    if(x >= y)
-    {
-        int j = 0;
-        for (int i = a; i < n; i++)
-        {
-            temp_temp[i][j] = 1;
-            j++;
-        }
-        j = b;
-        for (int i = 0; i < b; i++)
-        {
-            temp_temp[i][j] = 1;
-            j--;
-        }
-    }
-    else
-    {
-        int j = 0;
-        for (int i = a; i < n; i++)
-        {
-            temp_temp[j][i] = 1;
-            j++;
-        }
-        j = b;
-        for (int i = 0; i < b; i++)
-        {
-            temp_temp[j][i] = 1;
-            j--;
-        }
-    }
+	if (a < 0)
+		return (-a);
+	else
+		return (a);
 }
 
-int check()
+int ft_tracking_queens(int index)
 {
-    sum = 0;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            sum += temp_temp[i][j];
-        }
-    }
-    
-    if (sum == n * n)
-        return 1;
-    else
-        return 0;
+	int i;
+
+	i = -1;
+	while (++i < index)
+		if (g_board[index] == g_board[i] ||
+		index - i == ft_abs(g_board[index] - g_board[i]))
+			return (0);
+	return (1);
 }
 
-void find(int x, int y)
+void ft_re_queens(int index, int size)
 {
-
-    // 완성됬는지 확인
-    while (tem_cnt < n)
-    {
-        if(temp_temp[x][tem_cnt] == 0)
-        {
-            put(x, tem_cnt);
-            tem_cnt++;
-            if(check() == 1 && cnt == n)
-            {
-                ans++;
-                cnt = 0;
-                return;
-            }
-            x++;
-            find(x, y);
-            return;
-        }
-        else if(tem_cnt == n-1)
-        {
-            Y++;
-            cnt = 0;
-            memset(temp_temp, 0, sizeof(temp_temp));
-            find(0, Y);
-            return;
-        }
-    }
-    
-    return;
+	if (index == size)
+	{
+		g_count++;
+	}
+	for (int i = 0; i < size; i++)
+	{
+		g_board[index] = i;
+		if (ft_tracking_queens(index))
+			ft_re_queens(index + 1, size);
+	}
 }
 
-
-
-int main() 
+int main()
 {
-    scanf("%d", &n);
-    memset(chess, 0, sizeof(chess));
-    memset(temp_temp, 0, sizeof(temp_temp));
-
-    find(0, 0);
-    printf("%d", ans);
-    return 0;
+	int size;
+	scanf("%d", &size);
+	ft_re_queens(0, size);
+	printf("%d", g_count);
+	return 0;
 }

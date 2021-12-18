@@ -9,6 +9,12 @@
 		"queue": "cpp",
 		"functional": "cpp",
 		"set": "cpp",
-		"bitset": "cpp"
+		"bitset": "cpp",
+		"__locale": "cpp",
+		"string": "cpp",
+		"__split_buffer": "cpp",
+		"deque": "cpp",
+		"locale": "cpp",
+		"type_traits": "cpp"
 	}
 }
