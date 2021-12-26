@@ -17,6 +17,8 @@
 		"locale": "cpp",
 		"type_traits": "cpp",
 		"utility": "cpp",
-		"ios": "cpp"
+		"ios": "cpp",
+		"chrono": "cpp",
+		"limits": "cpp"
 	}
 }
